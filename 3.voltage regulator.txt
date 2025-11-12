@@ -1,0 +1,28 @@
+Vref = 1.25; % Reference voltage (V), typical value for LM317
+Iadj = 50e-6; % Adjust pin current (A), small leakage current (~50 μA)
+R1 = 240; % Fixed resistor between Vout and Adjust pin (ohms), standard recommended value
+%% --- Part 1: User input for R2 ---
+R2_user = input('Enter the value of R2 in ohms: '); % Prompt user to enter resistor R2 value
+% Calculate output voltage for the given R2 using LM317 formula
+% Vout = Vref * (1 + R2/R1) + (Iadj * R2)
+Vout_user = Vref * (1 + R2_user/R1) + (Iadj * R2_user);
+% Display the result for the entered R2
+fprintf('\nFor R2 = %.0f ohms, the output voltage Vout = %.2f V\n\n', ...
+R2_user, Vout_user);
+%% --- Part 2: Sweep range of R2 values ---
+R2 = 0:100:2000; % Create an array of R2 values from 0 to 2000 ohms, step size 100
+% Compute corresponding output voltages for each R2 (vectorized operation)
+Vout = Vref * (1 + R2./R1) + (Iadj .* R2);
+% Display results in tabular format
+fprintf(' R2 (ohms) Vout (volts)\n');
+fprintf(' --------- ------------\n');
+for i = 1:length(R2) % Loop through each R2 value
+fprintf('%10.0f %10.2f\n', R2(i), Vout(i)); % Print R2 and corresponding Vout
+end
+%% --- Plot results ---
+figure; % Open a new figure window
+plot(R2, Vout, 'o-b','LineWidth',1.5,'MarkerSize',6); % Plot with blue line and circle markers
+grid on; % Turn on grid for better readability
+xlabel('R2 (ohms)'); % Label for x-axis
+ylabel('Output Voltage Vout (V)'); % Label for y-axis
+title('Variation of LM317 Output Voltage with R2'); % Title of the plot

@@ -1,0 +1,41 @@
+clc;
+clear;
+close all;
+% ======== Enter Experimental Data ========
+% Frequency (Hz)
+f = [100 200 300 500 700 1e3 2e3 3e3 5e3 7e3 10e3 20e3 30e3 50e3 70e3 100e3 200e3 300e3 500e3 700e3 1e6];
+% Output Voltage (V) - Replace with your readings
+Vo_withFB = [0.012 0.018 0.025 0.040 0.055 0.070 0.065 0.058 0.045 0.030 0.020 0.010 0.006 0.0035 0.002 0.0016 0.0009 0.0006 0.00025 0.00012 0.00005];
+Vo_noFB = [0.011 0.017 0.024 0.038 0.052 0.066 0.060 0.052 0.040 0.028 0.018 0.0085 0.0048 0.0024 0.0011 0.0009 0.00045 0.00028 0.00011 5e-05 2e-05];
+Vi = 0.02; % Input voltage = 20 mV
+% ======== Calculations ========
+Av_withFB = Vo_withFB / Vi;
+Av_noFB = Vo_noFB / Vi;
+Gain_withFB = 20*log10(Av_withFB);
+Gain_noFB = 20*log10(Av_noFB);
+% ======== Plot ========
+semilogx(f, Gain_noFB, '-o', 'LineWidth',1.5); hold on;
+semilogx(f, Gain_withFB, '-s', 'LineWidth',1.5);
+grid on;
+xlabel('Frequency (Hz)');
+ylabel('Gain (dB)');
+title('Frequency Response of Current Series Feedback Amplifier');
+legend('Without Feedback', 'With Feedback', 'Location','Best');
+% ======== Bandwidth Calculation ========
+% Midband gains
+Gmax_noFB = max(Gain_noFB);
+Gmax_withFB = max(Gain_withFB);
+% -3dB points
+fL_noFB = f(find(Gain_noFB >= Gmax_noFB-3,1,'first'));
+fH_noFB = f(find(Gain_noFB >= Gmax_noFB-3,1,'last'));
+BW_noFB = fH_noFB - fL_noFB;
+fL_withFB = f(find(Gain_withFB >= Gmax_withFB-3,1,'first'));
+fH_withFB = f(find(Gain_withFB >= Gmax_withFB-3,1,'last'));
+BW_withFB = fH_withFB - fL_withFB;
+% ======== Display Results ========
+fprintf('\n--- RESULTS ---\n');
+fprintf('Without Feedback:\n Midband Gain = %.2f dB\n Bandwidth = %.1f Hz\n', Gmax_noFB, BW_noFB);
+fprintf('With Feedback:\n Midband Gain = %.2f dB\n Bandwidth = %.1f Hz\n', Gmax_withFB, BW_withFB);
+fprintf('\nComment:\n');
+fprintf('- With feedback, the gain decreases but bandwidth increases.\n');
+fprintf('- Without feedback, the gain is higher but bandwidth is smaller.\n');

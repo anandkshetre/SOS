@@ -1,0 +1,40 @@
+clc; clear; close all;
+%% Parameters
+Beta = 100; % Transistor beta
+Rc = 4.7e3; % Collector resistor (Ohm)
+Re = 1e3; % Emitter resistor (Ohm)
+Rl = 10e3; % Load resistor (Ohm)
+Cin = 10e-6; % Input coupling capacitor
+Cout = 10e-6; % Output coupling capacitor
+Ce = 100e-6; % Bypass capacitor
+Ic = 1e-3; % Collector current (A)
+gm = Ic/0.025; % Transconductance (25mV thermal voltage)
+rpi = Beta/gm; % Base resistance
+%% Frequency range
+f = logspace(1,7,1000); % 10 Hz to 10 MHz
+s = 1j*2*pi*f;
+%% Effective impedances
+Zcin = 1./(s*Cin);
+Zcout = 1./(s*Cout);
+Ze = 1./(s*Ce);
+Re_eff = (Re.*Ze)./(Re+Ze);
+%% Voltage gain with feedback
+Av = -gm*(Rc.*Rl)./(Rc+Rl)./(1 + gm*Re_eff);
+Avf = Av .* (rpi./(rpi+Zcin)) .* (Rl./(Rl+Zcout));
+%% Bandwidth (3-dB points)
+Av_mid = abs(Avf(round(end/2)));
+Av3dB = Av_mid/sqrt(2);
+idx = find(abs(Avf) >= Av3dB);
+BW = [f(idx(1)), f(idx(end))];
+%% Input & Output resistance
+Rif = rpi + (Beta+1)*Re;
+Rof = (Rc*Rl)/(Rc+Rl)/(1 + gm*Re);
+%% Display results
+fprintf('Voltage gain Avf ≈ %.2f\n', Av_mid);
+fprintf('Input resistance Rif ≈ %.1f kΩ\n', Rif/1e3);
+fprintf('Output resistance Rof ≈ %.1f Ω\n', Rof);
+fprintf('Bandwidth: %.1f Hz – %.1f Hz\n', BW(1), BW(2));
+%% Plot frequency response
+semilogx(f, 20*log10(abs(Avf)),'LineWidth',2);
+grid on; xlabel('Frequency (Hz)'); ylabel('Gain (dB)');
+title('Voltage-Series Feedback Amplifier Frequency Response');
